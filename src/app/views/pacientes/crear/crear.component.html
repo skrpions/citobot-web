@@ -235,12 +235,14 @@
                     <c-col>
                         <div class="mb-3">
                             <!-- Estrato -->
-                            <mat-form-field appearance="legacy" class="example-container">
+                            <mat-form-field appearance="legacy">
                                 <mat-label for="pac_estrato">
                                     <mat-icon> show_chart</mat-icon> Estrato:
                                 </mat-label>
-
-                                <input formControlName="pac_estrato" type="number" matInput #input maxlength="1" />
+                                <mat-select formControlName="pac_estrato">
+                                    <mat-option *ngFor="let estrato of [1,2,3,4,5,6]" [value]="estrato">
+                                        {{ estrato }}</mat-option>
+                                </mat-select>
                             </mat-form-field>
                         </div>
                     </c-col>
