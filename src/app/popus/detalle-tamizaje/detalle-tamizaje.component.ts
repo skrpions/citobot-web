@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { UsuarioService } from 'src/app/shared/services/usuario.service';
 import { ImagenService } from '../../shared/services/imagen.service';
@@ -10,81 +10,75 @@ import { ImagenService } from '../../shared/services/imagen.service';
     styleUrls: ['./detalle-tamizaje.component.scss'],
 })
 export class DetalleTamizajeComponent {
-    public infoPaciente: any = [];
-    public nombreCompleto: string = '';
-    public urlImagen: string = '';
-    public imgFromFtp: any;
-    public estadoConfiguracionVph: string | null = '';
-    public usuario: any;
-    public multipleImagenes = false;
-    public imag1: any;
-    public imag2: any;
-    public imag3: any;
-    public imag4: any;
-    public imag5: any;
-    private contadorImg = 0;
-    constructor(
-        private imagen: ImagenService,
-        private usuarioSvc: UsuarioService,
-        private dialogRef: MatDialogRef<DetalleTamizajeComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any
-    ) {
-        // Obtener los datos del usuario logueado
-        this.usuarioSvc.getUsuarioLogueado().subscribe((usuario) => {
-            this.usuario = usuario;
+  public infoPaciente: any = [];
+  public nombreCompleto: string = '';
+  public urlImagen: string = '';
+  public imgFromFtp: any;
+  public estadoConfiguracionVph: string | null = '';
+  public usuario: any;
+  public multipleImagenes = false;
+  public imag1: any;
+  public imag2: any;
+  public imag3: any;
+  public imag4: any;
+  public imag5: any;
+  private contadorImg = 0;
+  constructor(
+    private imagen: ImagenService,
+    private usuarioSvc: UsuarioService,
+    private dialogRef: MatDialogRef<DetalleTamizajeComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    // Obtener los datos del usuario logueado
+    this.usuarioSvc.getUsuarioLogueado().subscribe((usuario) => {
+      this.usuario = usuario;
+    });
+
+    this.verificarConfiguracionVphEnLocalStorage();
+
+    this.desplegarImagen();
+    this.totalImagenes();
+  }
+
+  private totalImagenes() {
+    this.imagen.getTotalImagenes(this.data.Tamizaje.tam_id).subscribe((res) => {
+      if (res.codigoRespuesta === 0) {
+        res.objetoRespuesta[0].total === 5
+          ? (this.multipleImagenes = true)
+          : (this.multipleImagenes = false);
+      }
+    });
+  }
+
+  private verificarConfiguracionVphEnLocalStorage() {
+    const configuracionVph = JSON.parse(
+      localStorage.getItem('configuracionVph')!
+    );
+    this.estadoConfiguracionVph = configuracionVph.estado;
+  }
+
+  private desplegarImagen() {
+    try {
+      this.imagen
+        .getImagenByIdTamizaje(this.data.Tamizaje.tam_id)
+        .subscribe((imagen) => {
+          if (imagen.objetoRespuesta.length > 1) {
+            for (let i = 0; i < imagen.objetoRespuesta.length; i++) {
+              this.obtenerImgFtp(imagen.objetoRespuesta[i].ima_ruta);
+            }
+          } else {
+            if (imagen.objetoRespuesta[0].ima_ruta !== undefined) {
+              this.urlImagen = imagen.objetoRespuesta[0].ima_ruta;
+              this.obtenerImgFtp(this.urlImagen);
+            }
+          }
         });
 
         this.verificarConfiguracionVphEnLocalStorage();
 
         this.desplegarImagen();
         this.totalImagenes();
-    }
-
-    private totalImagenes() {
-        this.imagen.getTotalImagenes(this.data.Tamizaje.tam_id).subscribe((res) => {
-            if (res.codigoRespuesta === 0) {
-                res.objetoRespuesta[0].total === 5
-                    ? (this.multipleImagenes = true)
-                    : (this.multipleImagenes = false);
-            }
-        });
-    }
-
-    private verificarConfiguracionVphEnLocalStorage() {
-        const configuracionVph = JSON.parse(
-            localStorage.getItem('configuracionVph')!
-        );
-        this.estadoConfiguracionVph = configuracionVph.estado;
-    }
-
-    private desplegarImagen() {
-        try {
-            this.imagen
-                .getImagenByIdTamizaje(this.data.Tamizaje.tam_id)
-                .subscribe((imagen) => {
-
-                    console.log('imagen.objetoRespuesta: ', imagen.objetoRespuesta[0]);
-
-
-                    if (imagen.objetoRespuesta.length > 1) {
-                        for (let i = 0; i < imagen.objetoRespuesta.length; i++) {
-                            this.obtenerImgFtp(imagen.objetoRespuesta[i].ima_ruta);
-                        }
-                    } else {
-
-                        if (imagen.objetoRespuesta[0] === undefined) {
-                            this.urlImagen =
-                                'https://images.unsplash.com/photo-1583106853354-9d88c18d46cf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80';
-                        } else {
-                            this.urlImagen = imagen.objetoRespuesta[0].ima_ruta;
-                            this.obtenerImgFtp(this.urlImagen);
-                        }
-
-                    }
-                });
-        } catch (error) {
-            console.log('Error: ', error);
-        }
+      }
     }
 
     private obtenerImgFtp(nombre: string) {
