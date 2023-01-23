@@ -5,9 +5,9 @@ import { UsuarioService } from 'src/app/shared/services/usuario.service';
 import { ImagenService } from '../../shared/services/imagen.service';
 
 @Component({
-    selector: 'app-detalle-tamizaje',
-    templateUrl: './detalle-tamizaje.component.html',
-    styleUrls: ['./detalle-tamizaje.component.scss'],
+  selector: 'app-detalle-tamizaje',
+  templateUrl: './detalle-tamizaje.component.html',
+  styleUrls: ['./detalle-tamizaje.component.scss'],
 })
 export class DetalleTamizajeComponent {
   public infoPaciente: any = [];
@@ -74,62 +74,62 @@ export class DetalleTamizajeComponent {
           }
         });
 
-        this.verificarConfiguracionVphEnLocalStorage();
+      this.verificarConfiguracionVphEnLocalStorage();
 
-        this.desplegarImagen();
-        this.totalImagenes();
+      this.desplegarImagen();
+      this.totalImagenes();
+    } catch (e) {}
+  }
+
+  private obtenerImgFtp(nombre: string) {
+    const objEnviar = {
+      nombreImg: nombre,
+    };
+    this.imagen.getImagenByFtp(objEnviar).subscribe((res: any) => {
+      if (res) {
+        this.createImageFromBlob(res);
       }
-    }
+    });
+  }
 
-    private obtenerImgFtp(nombre: string) {
-        const objEnviar = {
-            nombreImg: nombre,
-        };
-        this.imagen.getImagenByFtp(objEnviar).subscribe((res: any) => {
-            if (res) {
-                this.createImageFromBlob(res);
-            }
-        });
-    }
+  async createImageFromBlob(image: Blob) {
+    let reader = new FileReader();
 
-    async createImageFromBlob(image: Blob) {
-        let reader = new FileReader();
-
-        await reader.addEventListener(
-            'load',
-            () => {
-                if (this.multipleImagenes) {
-                    this.contadorImg++;
-                    switch (this.contadorImg) {
-                        case 1:
-                            this.imag1 = reader.result;
-                            break;
-                        case 2:
-                            this.imag2 = reader.result;
-                            break;
-                        case 3:
-                            this.imag3 = reader.result;
-                            break;
-                        case 4:
-                            this.imag4 = reader.result;
-                            break;
-                        case 5:
-                            this.imag5 = reader.result;
-                            break;
-                    }
-                } else {
-                    this.imgFromFtp = reader.result;
-                }
-            },
-            false
-        );
-
-        if (image) {
-            reader.readAsDataURL(image);
+    await reader.addEventListener(
+      'load',
+      () => {
+        if (this.multipleImagenes) {
+          this.contadorImg++;
+          switch (this.contadorImg) {
+            case 1:
+              this.imag1 = reader.result;
+              break;
+            case 2:
+              this.imag2 = reader.result;
+              break;
+            case 3:
+              this.imag3 = reader.result;
+              break;
+            case 4:
+              this.imag4 = reader.result;
+              break;
+            case 5:
+              this.imag5 = reader.result;
+              break;
+          }
+        } else {
+          this.imgFromFtp = reader.result;
         }
-    }
+      },
+      false
+    );
 
-    onNoClick(): void {
-        this.dialogRef.close();
+    if (image) {
+      reader.readAsDataURL(image);
     }
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
 }
