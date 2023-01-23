@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { brandSet, freeSet } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
-import { brandSet, flagSet, freeSet } from '@coreui/icons';
 
 @Component({
   templateUrl: 'coreui-icons.component.html',
@@ -12,10 +12,8 @@ export class CoreUIIconsComponent implements OnInit {
   public title = 'CoreUI Icons';
   public icons!: [string, string[]][];
 
-  constructor(
-    private route: ActivatedRoute, public iconSet: IconSetService
-  ) {
-    iconSet.icons = { ...freeSet, ...brandSet, ...flagSet };
+  constructor(private route: ActivatedRoute, public iconSet: IconSetService) {
+    iconSet.icons = { ...freeSet, ...brandSet };
   }
 
   ngOnInit() {
